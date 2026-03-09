@@ -158,11 +158,6 @@ Bu proje, modern web API'leri kullanılarak backend olmadan ne kadar gelişmiş 
 
 Kaynak: ChatGPT
 
-
----
-
-İsterseniz bunu ben GitHub için **renkli ve daha görsel destekli bir sürüme** de çevirebilirim:  
-- Emoji tabloları  
 - Badge’ler (PWA, Demo, HTML, CSS, JS)  
 - Öne çıkan özellikler için ikonlar  
 
