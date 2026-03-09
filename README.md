@@ -3,10 +3,6 @@
 Modern, tarayıcı tabanlı ve kurulumsuz çalışan gelişmiş bir topluluk sohbet uygulaması.  
 Tamamen **HTML + CSS + JavaScript** ile geliştirilmiştir. Backend olmadan demo amacıyla çalışır.
 
-> ⚠️ **Not:** Bu proje bir *frontend demo* çalışmasıdır. Gerçek üretim ortamı için sunucu altyapısı gereklidir.
-
----
-
 ## 🚀 Öne Çıkan Özellikler
 
 ### 👤 Kullanıcı Sistemi
@@ -80,42 +76,6 @@ Tamamen **HTML + CSS + JavaScript** ile geliştirilmiştir. Backend olmadan demo
 | localStorage         | İstemci tarafı veri tabanı          |
 | Service Worker       | PWA desteği                         |
 
-🧪 Demo Hesap
-
-İlk kayıt olan kullanıcı otomatik olarak admin olur.
-
-🔐 Güvenlik Notları (Demo Seviyesi)
-
-Bu proje eğitim ve demo amaçlıdır. Gerçek güvenlik sağlamaz.
-
-Eksikler
-
-Sunucu tarafı kimlik doğrulama yok
-
-JWT doğrulama yok
-
-Veritabanı yok
-
-Socket tabanlı gerçek zamanlı altyapı yok
-
-Uçtan uca şifreleme yok
-
-Üretim İçin Önerilen Stack
-
-Node.js
-
-Express.js
-
-Socket.io
-
-MongoDB / PostgreSQL
-
-JWT
-
-bcrypt
-
-HTTPS
-
 🎯 Yol Haritası (Roadmap)
 
 Gerçek zamanlı socket altyapısı
@@ -135,24 +95,6 @@ Dosya yükleme limiti ve optimizasyon
 Kullanıcı engelleme sistemi
 
 İçerik moderasyon araçları
-
-🤝 Katkıda Bulunma
-
-Katkılar memnuniyetle karşılanır.
-
-Fork oluştur
-
-Feature branch aç
-
-Commit at
-
-Pull Request gönder
-
-📄 Lisans
-
-MIT License
-
-👨‍💻 Geliştirici Notu
 
 Kaynak: ChatGPT
 
