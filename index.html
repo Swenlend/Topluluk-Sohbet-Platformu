@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Topluluk Sohbet Platformu - Profesyonel sohbet, sesli konuşma ve video chat uygulaması">
+  <meta name="keywords" content="sohbet, chat, topluluk, sosyal, mesajlaşma">
+  <meta name="author" content="Topluluk Sohbet Platformu">
+  <meta name="theme-color" content="#06b6d4">
+  
+  <title>Profesyonel Topluluk Sohbet Platformu | Anında Bağlanın</title>
+
+  <link rel="stylesheet" href="style.css/style-new.css">
+  <link rel="stylesheet" href="style.css/discord-extra.css">
+  <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>💬</text></svg>">
+
+</head>
+
+<body>
+  <!-- Skip to content link (Accessibility) -->
+  <a href="#main-content" class="skip-link">İçeriğe atla</a>
+
+  <!-- Background Canvas -->
+  <canvas id="bgCanvas"></canvas>
+
+  <!-- Floating Background Orbs -->
+  <div class="bg-orb bg-orb-1"></div>
+  <div class="bg-orb bg-orb-2"></div>
+  <div class="bg-orb bg-orb-3"></div>
+
+  <!-- Connection Status Indicator -->
+  <div id="connectionIndicator" style="position:fixed;top:20px;left:20px;width:12px;height:12px;border-radius:50%;background:#ef4444;box-shadow:0 0 10px #ef4444;z-index:9998;" title="Bağlantı kesildi"></div>
+
+  <!-- Notification Container -->
+  <div id="notification-container"></div>
+
+  <!-- Hidden File Input -->
+  <input type="file" id="fileInput" style="display:none" accept="image/*,video/*,.pdf">
+
+  <div class="container">
+
+    <!-- LANDING HEADER -->
+    <header class="landing-header">
+      <div class="site-title">💬 Topluluk Sohbet</div>
+      <nav class="landing-nav">
+        <a href="#home" onclick="navigateTo('home')">Anasayfa</a>
+        <a href="#login" onclick="navigateTo('login')">Giriş</a>
+        <a href="#register" onclick="navigateTo('register')">Kayıt</a>
+      </nav>
+    </header>
+
+    <!-- HOME PAGE -->
+    <section id="homePage" class="home-page">
+      <div class="home-hero">
+        <h2>Hoşgeldiniz!</h2>
+        <p>Topluluk Sohbet Platformu'na katılın, anlık mesajlaşın, sesli sohbet yapın ve yeni arkadaşlar edinin.</p>
+        <div class="home-actions">
+          <button class="btn btn-primary" onclick="navigateTo('login')">🔐 Giriş Yap</button>
+          <button class="btn btn-secondary" onclick="navigateTo('register')">✨ Kayıt Ol</button>
+          <button class="btn btn-ghost" onclick="guestLogin()">👤 Misafir Gir</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- LOGIN / REGISTER MODAL -->
+    <div class="login" id="login" style="display:none;">
+      <div class="login-box">
+        <div class="tab-buttons">
+          <button class="tab-btn active" onclick="switchTab('login')">Giriş Yap</button>
+          <button class="tab-btn" onclick="switchTab('register')">Kayıt Ol</button>
+        </div>
+
+        <!-- LOGIN TAB -->
+        <div id="loginTab" class="tab-content">
+          <h2>Giriş Yap</h2>
+          <form id="loginForm" onsubmit="event.preventDefault(); login(); return false;">
+            <input type="text" id="loginIdentifier" placeholder="Email veya kullanıcı adı" required autocomplete="username">
+            <input type="password" id="loginPassword" placeholder="Şifre" required autocomplete="current-password">
+            <div id="loginError" style="display:none;padding:10px;background:rgba(239,68,68,0.1);border-left:3px solid #ef4444;color:#fca5a5;margin-bottom:10px;border-radius:4px;font-size:13px;"></div>
+            <button type="submit" class="btn btn-primary" id="loginBtn" style="width:100%;">Giriş Yap</button>
+            <div id="loginLoading" style="display:none;text-align:center;margin:10px 0;color:var(--text-muted);">⏳ Giriş yapılıyor...</div>
+          </form>
+          <br>
+          <button class="btn btn-ghost" onclick="googleSignIn()" style="width:100%;">🔗 Google ile Giriş</button>
+          <br>
+          <button class="btn btn-secondary" onclick="guestLogin()" style="width:100%;">👤 Misafir Olarak Giriş</button>
+          <div style="margin-top:15px;padding-top:15px;border-top:1px solid var(--border-color);font-size:12px;color:var(--text-muted);">
+            <p><strong>Demo:</strong> admin / 123456</p>
+          </div>
+        </div>
+
+        <!-- REGISTER TAB -->
+        <div id="registerTab" class="tab-content hidden">
+          <h2>Kayıt Ol</h2>
+          <form id="registerForm" onsubmit="event.preventDefault(); register(); return false;">
+            <input type="text" id="regUsername" placeholder="Kullanıcı adı (2-20 karakter)" required autocomplete="username">
+            <input type="email" id="regEmail" placeholder="Email adresi" required autocomplete="email">
+            <input type="password" id="regPassword" placeholder="Şifre (min 6 karakter)" required autocomplete="new-password">
+            <input type="password" id="regPasswordConfirm" placeholder="Şifre tekrarı" required autocomplete="new-password">
+            <input type="number" id="regAge" placeholder="Yaş (13-120)" required min="13" max="120">
+            <div id="registerError" style="display:none;padding:10px;background:rgba(239,68,68,0.1);border-left:3px solid #ef4444;color:#fca5a5;margin-bottom:10px;border-radius:4px;font-size:13px;"></div>
+            
+            <button type="submit" class="btn btn-primary" id="registerButton" style="width:100%;">Kayıt Ol</button>
+            <div id="registerLoading" style="display:none;text-align:center;margin:10px 0;color:var(--text-muted);">⏳ Kayıt yapılıyor...</div>
+          </form>
+          
+          <div class="roles-container">
+            <h3>İlgi alanlarınızı seçin (1-5 arası):</h3>
+            <div class="roles-grid">
+              <label><input type="checkbox" value="user" checked> 👤 Kullanıcı</label>
+              <label><input type="checkbox" value="kahve"> ☕ Kahve Sever</label>
+              <label><input type="checkbox" value="oyun"> 🎮 Oyunsever</label>
+              <label><input type="checkbox" value="spor"> ⚽ Sporcu</label>
+              <label><input type="checkbox" value="muzik"> 🎵 Müzisyen</label>
+              <label><input type="checkbox" value="gezgin"> ✈️ Gezgin</label>
+              <label><input type="checkbox" value="yazar"> 📝 Yazar</label>
+              <label><input type="checkbox" value="sanat"> 🎨 Sanatçı</label>
+              <label><input type="checkbox" value="programci"> 💻 Programcı</label>
+              <label><input type="checkbox" value="gurme"> 🍽️ Gurme</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN HEADER (shown after login) -->
+    <header class="header hidden" id="mainHeader">
+      <div class="logo">
+        <div class="logo-icon">💬</div>
+        <h1>Topluluk Sohbet</h1>
+      </div>
+      <div class="header-right">
+        <button id="themeToggle" class="btn btn-ghost" title="Temayı değiştir">🌙</button>
+        <button id="toggleUsers" class="btn btn-ghost" title="Kullanıcılar">👥</button>
+        <button id="adminPanelBtn" class="btn btn-ghost hidden" title="Admin Panel">🛡️</button>
+        <div id="userInfo" class="user-info hidden">
+          <span id="usernameDisplay"></span>
+          <span id="roleBadge" class="badge"></span>
+          <button class="btn btn-danger btn-sm" onclick="logout()">Çıkış</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- CHAT SCREEN -->
+    <div id="chatScreen" class="chat-layout hidden">
+
+      <!-- SERVER/SIDEBAR PANEL (Sol) -->
+      <div class="discord-sidebar">
+        <div class="server-list">
+          <div class="server-item active" onclick="switchServer('main')" title="Ana Sunucu">
+            <div class="server-icon">💬</div>
+          </div>
+          <div class="server-item" onclick="switchServer('gaming')" title="Gaming">
+            <div class="server-icon">🎮</div>
+          </div>
+          <div class="server-item" onclick="switchServer('music')" title="Müzik">
+            <div class="server-icon">🎵</div>
+          </div>
+          <div class="server-item" onclick="switchServer('art')" title="Sanat">
+            <div class="server-icon">🎨</div>
+          </div>
+        </div>
+
+        <div class="user-status">
+          <div class="user-avatar" id="sidebarAvatar">👤</div>
+          <div class="user-info">
+            <div class="user-name" id="sidebarUsername">Misafir</div>
+            <div class="user-status-text" id="sidebarStatus">#0000</div>
+          </div>
+          <div class="user-controls">
+            <button class="status-btn" onclick="toggleUserMenu()" title="Kullanıcı Menüsü">⚙️</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHANNELS PANEL (Sol Orta) -->
+      <div class="channels-panel">
+        <div class="channels-header">
+          <h3 id="serverName">💬 Topluluk Sohbet</h3>
+          <button class="collapse-btn" onclick="toggleChannels()">▼</button>
+        </div>
+
+        <div class="channels-list">
+          <div class="channel-category">
+            <div class="category-header" onclick="toggleCategory('text')">
+              <span>📝 METİN KANALLARI</span>
+              <span class="category-arrow">▼</span>
+            </div>
+            <div class="category-channels" id="textChannels">
+              <div class="channel-item active" onclick="switchChannel('genel')" data-channel="genel">
+                <span class="channel-hash">#</span>
+                <span class="channel-name">genel</span>
+                <span class="channel-notify" id="genelNotify"></span>
+              </div>
+              <div class="channel-item" onclick="switchChannel('oyun')" data-channel="oyun">
+                <span class="channel-hash">#</span>
+                <span class="channel-name">oyun</span>
+                <span class="channel-notify" id="oyunNotify"></span>
+              </div>
+              <div class="channel-item" onclick="switchChannel('muzik')" data-channel="muzik">
+                <span class="channel-hash">#</span>
+                <span class="channel-name">müzik</span>
+                <span class="channel-notify" id="muzikNotify"></span>
+              </div>
+              <div class="channel-item" onclick="switchChannel('spor')" data-channel="spor">
+                <span class="channel-hash">#</span>
+                <span class="channel-name">spor</span>
+                <span class="channel-notify" id="sporNotify"></span>
+              </div>
+              <div class="channel-item" onclick="switchChannel('teknoloji')" data-channel="teknoloji">
+                <span class="channel-hash">#</span>
+                <span class="channel-name">teknoloji</span>
+                <span class="channel-notify" id="teknolojiNotify"></span>
+              </div>
+              <div class="channel-item" onclick="switchChannel('sanat')" data-channel="sanat">
+                <span class="channel-hash">#</span>
+                <span class="channel-name">sanat</span>
+                <span class="channel-notify" id="sanatNotify"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="channel-category">
+            <div class="category-header" onclick="toggleCategory('voice')">
+              <span>🔊 SESLİ KANALLAR</span>
+              <span class="category-arrow">▼</span>
+            </div>
+            <div class="category-channels" id="voiceChannels">
+              <div class="voice-channel-item" onclick="joinVoice('genel-voice')" data-channel="genel-voice">
+                <span class="voice-icon">🔊</span>
+                <span class="channel-name">Genel Sohbet</span>
+                <span class="voice-users" id="genelVoiceUsers">0</span>
+              </div>
+              <div class="voice-channel-item" onclick="joinVoice('oyun-voice')" data-channel="oyun-voice">
+                <span class="voice-icon">🎮</span>
+                <span class="channel-name">Oyun Odası</span>
+                <span class="voice-users" id="oyunVoiceUsers">0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="channels-footer">
+          <div class="user-panel">
+            <div class="user-avatar-small" id="footerAvatar">👤</div>
+            <div class="user-details">
+              <div class="user-name-small" id="footerUsername">Misafir</div>
+              <div class="user-status-small" id="footerStatus">Çevrimiçi</div>
+            </div>
+            <div class="user-actions">
+              <button class="action-btn" onclick="toggleMute()" title="Mikrofon">🎤</button>
+              <button class="action-btn" onclick="toggleDeaf()" title="Kulaklık">🎧</button>
+              <button class="action-btn" onclick="showUserSettings()" title="Ayarlar">⚙️</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHAT PANEL (Sağ) -->
+      <div class="chat-main">
+        <div class="chat-header">
+          <div class="chat-info">
+            <span class="channel-hash">#</span>
+            <span class="channel-name" id="currentChannel">genel</span>
+            <span class="channel-desc">Genel sohbet kanalı</span>
+          </div>
+          <div class="chat-actions">
+            <button class="chat-btn" onclick="toggleSearch()" title="Ara">🔍</button>
+            <button class="chat-btn" onclick="toggleMembers()" title="Üyeler">👥</button>
+            <button class="chat-btn" onclick="showChannelSettings()" title="Kanal Ayarları">⚙️</button>
+            <button class="chat-btn" onclick="togglePinned()" title="Sabitlenmiş">📌</button>
+          </div>
+        </div>
+
+        <div class="chat-messages" id="messages">
+          <div class="welcome-message">
+            <div class="welcome-content">
+              <h2>💬 #genel kanalına hoşgeldiniz!</h2>
+              <p>Bu kanal genel sohbetler için kullanılır. Herkes buradan başlayabilir.</p>
+              <div class="welcome-tips">
+                <div class="tip">
+                  <span class="tip-icon">📝</span>
+                  <span>Mesaj göndermek için altta yazın</span>
+                </div>
+                <div class="tip">
+                  <span class="tip-icon">🎨</span>
+                  <span>Emoji eklemek için 😀 butonuna tıklayın</span>
+                </div>
+                <div class="tip">
+                  <span class="tip-icon">📎</span>
+                  <span>Dosya göndermek için 📎 butonunu kullanın</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-input-area">
+          <div class="message-input-container">
+            <button class="input-btn" onclick="toggleEmojiPicker()" title="Emoji">😀</button>
+            <button class="input-btn" onclick="toggleGifPicker()" title="GIF">🎬</button>
+            <button class="input-btn" onclick="toggleFileUpload('image/*')" title="Fotoğraf">📷</button>
+            <button class="input-btn" onclick="toggleFileUpload('video/*')" title="Video">🎥</button>
+            <button class="input-btn" onclick="toggleAudioRecorder()" title="Ses Kaydet">🎙️</button>
+            <button class="input-btn" onclick="toggleFileUpload()" title="Dosya">📎</button>
+
+            <div class="message-input-wrapper">
+              <div class="message-input" contenteditable="true" id="messageInput" placeholder="Mesaj yazın..."></div>
+              <div class="message-actions">
+                <button class="send-btn" onclick="sendMessage()" id="sendButton">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div id="emojiBar" class="emoji-bar hidden"></div>
+          <div id="filePreview" class="file-preview hidden"></div>
+          <div class="typing-indicator" id="typingIndicator"></div>
+        </div>
+      </div>
+
+      <!-- MEMBERS PANEL (Sağ Yan) -->
+      <div class="members-panel" id="membersPanel">
+        <div class="members-header">
+          <h4>Çevrimiçi — <span id="onlineCount">0</span></h4>
+        </div>
+        <div class="members-list" id="membersList">
+          <!-- Members will be populated here -->
+        </div>
+      </div>
+
+    </div>
+
+      <!-- RIGHT PANEL: Users -->
+      <div class="card users-panel" id="usersPanel">
+        <div class="card-header">
+          👥 Çevrimiçi Kullanıcılar
+          <span class="user-count" id="userCount">(0)</span>
+        </div>
+        <div class="card-body" id="userList">
+          <p style="color:var(--text-muted);text-align:center;padding:20px;">Henüz kullanıcı yok</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- DM PANEL (Direct Messaging) -->
+    <div class="dm-panel hidden" id="dmPanel">
+      <div class="dm-header">
+        <span id="dmHeader">📩 Direkt Mesajlar</span>
+        <button class="btn btn-ghost btn-sm" onclick="closeDMPanel()">✕</button>
+      </div>
+      <div class="dm-list" id="dmList"></div>
+      <div class="dm-messages hidden" id="dmMessages"></div>
+      <div class="dm-input-area hidden" id="dmInputArea">
+        <div class="dm-input-controls">
+          <button class="btn btn-ghost btn-sm" onclick="toggleDMEmojiPicker()" title="Emoji">😀</button>
+          <button class="btn btn-ghost btn-sm" onclick="toggleDMFileUpload()" title="Dosya">📎</button>
+        </div>
+        <input type="text" id="dmInput" placeholder="Mesaj yaz...">
+        <button class="btn btn-primary btn-sm" onclick="sendDMFromInput()">📤</button>
+      </div>
+    </div>
+
+    </div>
+
+    <!-- PROFILE SETTINGS PANEL -->
+    <div class="profile-settings hidden" id="profileSettings">
+      <h3>⚙️ Ayarlar</h3>
+      <h4 style="font-size:12px;color:var(--text-muted);margin:10px 0;">Durum</h4>
+      <select onchange="changeStatus(this.value)">
+        <option value="Online">🟢 Çevrimiçi</option>
+        <option value="Meşgul">🔴 Meşgul</option>
+        <option value="Boşta">🟡 Boşta</option>
+      </select>
+      <h4 style="font-size:12px;color:var(--text-muted);margin:10px 0;">Profil Fotoğrafı</h4>
+      <input type="file" id="avatarInput" accept="image/*">
+    </div>
+
+    <!-- ADMIN PANEL -->
+    <div id="adminPanel" class="admin-panel hidden">
+      <h3>🛡️ Admin Panel</h3>
+      
+      <div style="margin-top:15px;">
+        <h4 style="font-size:13px;margin:10px 0;">📊 İstatistikler</h4>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:15px;">
+          <div style="background:var(--bg-tertiary);padding:10px;border-radius:8px;text-align:center;">
+            <div style="font-size:20px;font-weight:bold;color:var(--primary);" id="adminTotalUsers">0</div>
+            <div style="font-size:11px;color:var(--text-muted);">Toplam Kullanıcı</div>
+          </div>
+          <div style="background:var(--bg-tertiary);padding:10px;border-radius:8px;text-align:center;">
+            <div style="font-size:20px;font-weight:bold;color:var(--success);" id="adminOnlineUsers">0</div>
+            <div style="font-size:11px;color:var(--text-muted);">Çevrimiçi</div>
+          </div>
+        </div>
+      </div>
+      
+      <div>
+        <h4 style="font-size:13px;margin:10px 0;">👥 Kullanıcı Yönetimi</h4>
+        <div id="adminUserList" style="max-height:200px;overflow-y:auto;"></div>
+      </div>
+      
+      <div style="margin-top:15px;">
+        <h4 style="font-size:13px;margin:10px 0;">⚙️ Sistem Yönetimi</h4>
+        <button class="btn btn-danger" onclick="clearRoom()" style="width:100%;margin-bottom:8px;">🗑️ Odayı Temizle</button>
+        <button class="btn btn-secondary" onclick="broadcastMessage()" style="width:100%;margin-bottom:8px;">📢 Tüm Odalara Mesaj Gönder</button>
+        <button class="btn btn-warning" onclick="toggleMaintenance()" style="width:100%;margin-bottom:8px;" id="maintenanceBtn">🔧 Bakım Modu Aç</button>
+        <button class="btn btn-info" onclick="exportUserData()" style="width:100%;">📊 Kullanıcı Verilerini Dışa Aktar</button>
+      </div>
+      
+      <div style="margin-top:15px;">
+        <h4 style="font-size:13px;margin:10px 0;">🚫 Yasaklı Kullanıcılar</h4>
+        <div id="bannedUsersList" style="max-height:100px;overflow-y:auto;font-size:12px;"></div>
+      </div>
+    </div>
+
+    <!-- PROFILE PANEL -->
+    <div class="profile-panel hidden" id="profilePanel">
+      <h3>👤 Profil</h3>
+      <textarea id="bioInput" placeholder="Biyografinizi yazin..."></textarea>
+      <button class="btn btn-primary" onclick="updateProfile()">Kaydet</button>
+    </div>
+
+    <!-- VOICE CHAT PANEL -->
+    <div class="voice-panel hidden" id="voicePanel">
+      <h3>🎤 Sesli Sohbet Odaları</h3>
+      <div class="voice-rooms">
+        <button class="btn btn-primary voice-start-btn" onclick="startVoice('genel')">🎙️ Genel Sohbet (5 kişi)</button>
+        <button class="btn btn-primary voice-start-btn" onclick="startVoice('oyun')">🎮 Oyun Odası (5 kişi)</button>
+        <button class="btn btn-primary voice-start-btn" onclick="startVoice('sohbet')">💬 Sohbet Odası (5 kişi)</button>
+        <button class="btn btn-primary voice-start-btn" onclick="startVoice('tanisma')">👋 Tanışma Odası (5 kişi)</button>
+      </div>
+    </div>
+
+    <!-- VIDEO CHAT PANEL -->
+    <div class="video-panel hidden" id="videoPanel">
+      <h3>📹 Video Sohbet</h3>
+      <button class="btn btn-primary" onclick="startVideo()">📷 Kamerayı Başlat</button>
+      <button class="btn btn-ghost" onclick="stopVideo()">⏹️ Durdur</button>
+      <video id="localVideo" autoplay muted style="width:100%;height:200px;border-radius:var(--radius-md);background:#000;margin-top:10px;"></video>
+    </div>
+
+    <!-- GIF SEARCH PANEL -->
+    <div class="gif-panel hidden" id="gifPanel">
+      <h3>🎬 GIF Ara</h3>
+      <input id="gifSearch" placeholder="GIF ara...">
+      <button class="btn btn-primary" onclick="searchGif()" style="width:100%;">Ara</button>
+      <div id="gifResults"></div>
+    </div>
+
+    <!-- USER PROFILE MODAL -->
+    <div class="profile-modal hidden" id="profileModal">
+      <div class="profile-modal-content">
+        <div class="profile-modal-header">
+          <h3>👤 Kullanıcı Profili</h3>
+          <button class="btn btn-ghost btn-sm" onclick="closeProfileModal()">✕</button>
+        </div>
+        <div class="profile-modal-body" id="profileModalBody">
+          <!-- Profile content will be populated here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- LEADERBOARD BUTTON -->
+    <button class="btn btn-primary floating-btn" onclick="showLeaderboard()" title="🏆 Liderlik Tablosu">🏆</button>
+
+    <!-- QUICK ACTIONS FLOATING MENU -->
+    <div class="quick-actions" id="quickActions">
+      <button class="quick-btn" onclick="toggleTheme()" title="Tema Değiştir">🌙</button>
+      <button class="quick-btn" onclick="openDMPanel()" title="DM'ler">💬</button>
+      <button class="quick-btn" onclick="showVoicePanel()" title="Sesli Sohbet">🎤</button>
+      <button class="quick-btn" onclick="showLeaderboard()" title="Liderlik">🏆</button>
+    </div>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="script.js/utils.js"></script>
+  <script src="script.js/app-new.js"></script>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="script.js/upload.js"></script>
+
+</body>
+</html>
